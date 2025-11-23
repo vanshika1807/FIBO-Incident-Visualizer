@@ -1,0 +1,3 @@
+[DEV] AG: Login failed - Severity High
+[CTE] SS: Timeout error - Severity Medium
+[PROD] AG: API returned 500 - Severity Critical
