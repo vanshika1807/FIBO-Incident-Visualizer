@@ -1,9 +1,33 @@
 # json_builder.py
-def build_fibo_json(parsed_logs):
+
+def build_fibo_payload(parsed_incident: dict) -> dict:
     """
-    Convert parsed logs into FIBO JSON format.
+    Convert parsed incident data into a structured JSON payload
+    ready for BRIA / FIBO AI processing.
     """
+
+    service = parsed_incident.get("service")
+    environment = parsed_incident.get("environment")
+    severity = parsed_incident.get("severity")
+    issue = parsed_incident.get("issue")
+    timestamp = parsed_incident.get("timestamp")
+
+    # AI Prompt to generate visualization / description
+    prompt = (
+        f"Summarize this incident professionally:\n"
+        f"- Service: {service}\n"
+        f"- Environment: {environment}\n"
+        f"- Severity: {severity}\n"
+        f"- Issue: {issue}\n"
+        f"- Timestamp: {timestamp}\n"
+        f"Then generate a clean incident visual description for dashboard representation."
+    )
+
     return {
-        'nodes': parsed_logs,
-        'relationships': []  # You can add later based on incident relations
+        "incident_summary": issue,
+        "service": service,
+        "environment": environment,
+        "severity": severity,
+        "timestamp": timestamp,
+        "prompt": prompt
     }
