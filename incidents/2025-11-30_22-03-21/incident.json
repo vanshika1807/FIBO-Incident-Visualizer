@@ -1,0 +1,7 @@
+{
+    "service": "Advisor Gateway",
+    "environment": "UNKNOWN",
+    "issue": "Ers cannot login to ag in ev. getting 404 errors.",
+    "severity": "High",
+    "timestamp": "2025-11-30 22:03:01"
+}

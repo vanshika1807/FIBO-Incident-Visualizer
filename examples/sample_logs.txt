@@ -1,3 +1,10 @@
 [DEV] AG: Login failed - Severity High
 [CTE] SS: Timeout error - Severity Medium
 [PROD] AG: API returned 500 - Severity Critical
+Users are not able to login to SmartStation in DEV
+Users are not able to login to SmartStation in DEV due to 500 error code
+Users cannot login to SmartStation in DEV. Getting 500 errors.
+Users cannot login to SmartStation in DEV. Getting 500 errors.
+Users cannot login to SmartStation in DEV. Getting 400 errors.
+Users cannot login to AG in DEV. Getting 404 errors.
+
