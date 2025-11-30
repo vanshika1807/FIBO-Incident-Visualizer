@@ -1,16 +1,7 @@
-import requests
-from config.settings import BRIA_API_KEY
+# test_parser.py
+from parser import parse_log_text
 
-headers = {
-    "api_token": f"{BRIA_API_KEY}",
-    "Content-Type": "application/json"
-}
+bad_log = "Useers are not able to login to SmartSttaion in DEV after deploymnt.\nWe see 500 erreors and intermittent timouts."
 
-payload = {
-    "prompt": "Test image for incident dashboard",
-    "size": "512x512"
-}
-
-resp = requests.post("https://engine.prod.bria-api.com/v2/image/generate", headers=headers, json=payload)
-print("Status:", resp.status_code)
-print("Response:", resp.text)
+parsed = parse_log_text(bad_log)
+print(parsed)

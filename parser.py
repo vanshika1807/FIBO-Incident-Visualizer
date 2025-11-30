@@ -21,23 +21,61 @@ def clean_text(text: str) -> str:
 
 def normalize_spellings(text: str) -> str:
     """
-    Run a lightweight spelling correction on the whole text.
-    Note: autocorrect works token-by-token; it may change some acronyms.
+    Spell-correct normal English but protect product names and force-correct
+    commonly misspelled service terms.
     """
-    if not text:
-        return text
+
+    TECH_TERMS = {
+        "smart station": "SmartStation",
+        "smartstation": "SmartStation",
+        "smart sttaion": "SmartStation",
+        "smrtstation": "SmartStation",
+        "ss": "SS",
+
+        "advisor gateway": "Advisor Gateway",
+        "advicer gateway": "Advisor Gateway",
+        "ag": "AG",
+
+        "bits": "BITS",
+        "oits": "OITS",
+        "ping": "Ping Service"
+    }
+
     cleaned = clean_text(text)
-    # We'll correct line-by-line so we keep structure
     lines = cleaned.splitlines()
     corrected_lines = []
+
     for line in lines:
-        # only correct if line has alphabetical characters
-        if re.search(r'[A-Za-z]', line):
-            corrected = speller(line)
-            corrected_lines.append(corrected)
-        else:
-            corrected_lines.append(line)
-    return "\n".join(corrected_lines)
+        words = line.split()
+
+        new_words = []
+        for w in words:
+            lw = w.lower()
+
+            # 1) If word matches tech term → force correct it
+            if lw in TECH_TERMS:
+                new_words.append(TECH_TERMS[lw])
+                continue
+
+            # 2) If the word LOOKS like part of "SmartStation" pattern
+            if "smart" in lw or "station" in lw or "sttaion" in lw:
+                new_words.append("SmartStation")
+                continue
+
+            # 3) Otherwise apply normal autocorrect
+            corrected = speller(w)
+            new_words.append(corrected)
+
+        corrected_lines.append(" ".join(new_words))
+
+    # After correcting, run phrase-based replacement also (handles multi-word phrases)
+    final_text = "\n".join(corrected_lines).lower()
+
+    for wrong, correct in TECH_TERMS.items():
+        final_text = final_text.replace(wrong, correct)
+
+    return final_text
+
 
 def parse_log_text(text: str) -> dict:
     """
