@@ -1,0 +1,22 @@
+body {
+  font-family: "Poppins", sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  background: #fff;
+  padding: 16px;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  text-decoration: none;
+  color: black;
+  display: block;
+}
+
+.incident-list {
+  display: flex;
+  flex-wrap: wrap;
+}

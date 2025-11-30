@@ -1,6 +1,8 @@
 # api_server.py
 import os
 import json
+import shutil
+from datetime import datetime
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
 from app.fibo_client import generate_fibo_image
@@ -11,7 +13,9 @@ app = FastAPI()
 
 INCIDENTS_DIR = "incidents"
 
-
+# ----------------------------------------------------
+# Root endpoint
+# ----------------------------------------------------
 @app.get("/")
 def root():
     return {"message": "FIBO Incident Visualizer API Running"}
@@ -23,7 +27,7 @@ def root():
 @app.get("/incidents")
 def list_incidents():
     if not os.path.exists(INCIDENTS_DIR):
-        return []
+        return {"incidents": []}
 
     incidents = sorted(os.listdir(INCIDENTS_DIR))
     return {"incidents": incidents}
@@ -78,3 +82,26 @@ def manual_generate(prompt: str):
         "status": "ok",
         "image_path": image_path
     }
+
+
+# ----------------------------------------------------
+# 5️⃣ Upload endpoint for watcher.py
+# ----------------------------------------------------
+@app.post("/upload")
+def upload_incident(
+    metadata: UploadFile = File(...),
+    image: UploadFile = File(...)
+):
+    timestamp_folder = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    incident_dir = os.path.join(INCIDENTS_DIR, timestamp_folder)
+    os.makedirs(incident_dir, exist_ok=True)
+
+    # Save metadata JSON
+    with open(os.path.join(incident_dir, "incident.json"), "wb") as f:
+        f.write(metadata.file.read())
+
+    # Save image PNG
+    with open(os.path.join(incident_dir, "image.png"), "wb") as f:
+        shutil.copyfileobj(image.file, f)
+
+    return {"status": "ok", "folder": incident_dir}
