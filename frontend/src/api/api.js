@@ -14,7 +14,12 @@ export const fetchIncident = async (id) => {
 
 export const fetchIncidentImage = (id) => `${API_URL}/incidents/${id}/image`;
 
-export const generateIncident = async (prompt) => {
-  const res = await axios.post(`${API_URL}/generate`, { prompt });
-  return res.data;
+export const generateIncident = async (payload) => {
+  // payload should be an object like { prompt: "..." }
+  const response = await axios.post(`${API_URL}/generate`, payload, {
+    headers: {
+      "Content-Type": "application/json"
+    }
+  });
+  return response.data;
 };

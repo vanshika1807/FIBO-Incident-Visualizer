@@ -1,14 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { fetchIncidents } from "../api/api";
+import React from "react";
 import IncidentCard from "./IncidentCard";
 
-export default function IncidentList() {
-  const [incidents, setIncidents] = useState([]);
-
-  useEffect(() => {
-    fetchIncidents().then(setIncidents);
-  }, []);
-
+export default function IncidentList({ incidents }) {
   return (
     <div className="incident-list">
       {incidents.map((id) => (

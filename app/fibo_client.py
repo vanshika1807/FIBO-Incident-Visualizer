@@ -53,7 +53,7 @@ def generate_fibo_image(payload, wait_for_completion=True, poll_interval=2):
             
             # Step 3: Download image
             os.makedirs("output/images", exist_ok=True)
-            local_path = os.path.join("output/images", "incident.png")
+            local_path = os.path.join("output","images", "incident.png")
             img_data = requests.get(image_url).content
             with open(local_path, "wb") as f:
                 f.write(img_data)

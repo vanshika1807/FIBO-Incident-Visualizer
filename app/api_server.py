@@ -3,15 +3,46 @@ import os
 import json
 import shutil
 from datetime import datetime
+
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
+
 from app.fibo_client import generate_fibo_image
 from app.parser import parse_log_text
 from app.json_builder import build_fibo_payload
 
+# ----------------------------------------------------
+# Create FastAPI app
+# ----------------------------------------------------
 app = FastAPI()
 
+# ----------------------------------------------------
+# CORS FIX (MUST BE AT THE TOP)
+# ----------------------------------------------------
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],          # allow frontend
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ----------------------------------------------------
+# Preflight FIX for /generate
+# ----------------------------------------------------
+@app.options("/generate")
+async def options_generate():
+    return {}
+
 INCIDENTS_DIR = "incidents"
+
+# ----------------------------------------------------
+# Pydantic model for /generate
+# ----------------------------------------------------
+class GenerateRequest(BaseModel):
+    prompt: str
 
 # ----------------------------------------------------
 # Root endpoint
@@ -19,7 +50,6 @@ INCIDENTS_DIR = "incidents"
 @app.get("/")
 def root():
     return {"message": "FIBO Incident Visualizer API Running"}
-
 
 # ----------------------------------------------------
 # 1️⃣ List all incidents
@@ -31,7 +61,6 @@ def list_incidents():
 
     incidents = sorted(os.listdir(INCIDENTS_DIR))
     return {"incidents": incidents}
-
 
 # ----------------------------------------------------
 # 2️⃣ Get incident metadata
@@ -49,7 +78,6 @@ def get_incident(incident_id: str):
 
     return metadata
 
-
 # ----------------------------------------------------
 # 3️⃣ Get incident image
 # ----------------------------------------------------
@@ -63,12 +91,13 @@ def get_incident_image(incident_id: str):
 
     return FileResponse(img_path)
 
-
 # ----------------------------------------------------
-# 4️⃣ Manually generate image (optional)
+# 4️⃣ Manually generate image
 # ----------------------------------------------------
 @app.post("/generate")
-def manual_generate(prompt: str):
+def manual_generate(req: GenerateRequest):
+    prompt = req.prompt
+
     fake_log = f"Issue detected: {prompt}"
 
     parsed = parse_log_text(fake_log)
@@ -83,9 +112,8 @@ def manual_generate(prompt: str):
         "image_path": image_path
     }
 
-
 # ----------------------------------------------------
-# 5️⃣ Upload endpoint for watcher.py
+# 5️⃣ Upload incident (used by watcher.py)
 # ----------------------------------------------------
 @app.post("/upload")
 def upload_incident(
@@ -96,11 +124,11 @@ def upload_incident(
     incident_dir = os.path.join(INCIDENTS_DIR, timestamp_folder)
     os.makedirs(incident_dir, exist_ok=True)
 
-    # Save metadata JSON
+    # Save metadata
     with open(os.path.join(incident_dir, "incident.json"), "wb") as f:
         f.write(metadata.file.read())
 
-    # Save image PNG
+    # Save image
     with open(os.path.join(incident_dir, "image.png"), "wb") as f:
         shutil.copyfileobj(image.file, f)
 
